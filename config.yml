@@ -1,0 +1,27 @@
+listeners:
+    irc: true
+    http: true
+
+log:
+    file: STDOUT
+    level: DEBUG
+    rotation: weekly
+
+pid_file: bender.pid
+
+irc:
+    hostname: localhost
+    port: 6667
+    username: bender
+    fullname: bender
+    nickname: bender_test
+    #token: nil
+    #ssl: true
+    rooms: ['#bender-test']
+    
+http_listener:
+    port: 9091
+    address: 0.0.0.0
+    max_clients: 4
+    #log: STDOUT
+    log: !BENDER_LOGGER

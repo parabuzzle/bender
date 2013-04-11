@@ -19,12 +19,13 @@ module BenderProcessor
       end
       
       # Parse Messages
+      # rubular.com is a really good for coming up with regex ;)
       case msg
-         when /^#{hash[:bot].nickname},?$/i
+         when /^#{bot.nickname},?$/i
            # match nickname
            bot.say room, "Kiss my shiny metal ass"
           
-          when /^#{hash[:bot].nickname},? version$/i
+          when /^#{bot.nickname},? version$/i
             # match nickname, version
             bot.say room, BENDER_VERSION
         

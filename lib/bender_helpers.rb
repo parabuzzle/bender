@@ -10,6 +10,10 @@ module BenderHelpers
       return false
     end
   end
+  
+  def bender_pid
+    return $$
+  end
 
   def write_pid
     #write a pid file

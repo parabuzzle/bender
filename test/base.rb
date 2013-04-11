@@ -29,6 +29,12 @@ CONFIG = YAML::load(File.open("#{$LIB_BASE_DIR}/config.yml"))
 # just dump it to /dev/null for tests.
 Log = Logger.new("/dev/null")
 
+class TestBase < Test::Unit::TestCase
+  def test_spunk_version
+    assert(SPUNK_VERSION > "0.1.0", "Your version of spunk is not compatible with Bender (#{SPUNK_VERSION} < 0.1.0)")
+  end
+end
+
 # Gather tests and run 'em
 Dir.glob('./test/test*.rb').each do|test|
  puts test

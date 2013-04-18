@@ -51,10 +51,17 @@ username = CONFIG['irc']['username'] ||= "bender"
 fullname = CONFIG['irc']['fullname'] ||= "bender"
 nickname = CONFIG['irc']['nickname'] ||= "bender"
 hostname = CONFIG['irc']['hostname'] ||="localhost"
+invites_ok = CONFIG['irc']['invites_ok']
+nickserv_password = CONFIG['irc']['nickserv_password'] ||= nil
 port = CONFIG['irc']['port'] ||= 6667
 token = CONFIG['irc']['token'] ||= nil
 ssl = CONFIG['irc']['ssl'] ||= false
-options = {:username => username,:fullname => fullname,:nickname => nickname,:hostname => hostname,:port => port,:token => token,:ssl => ssl,:logger=>Log}
+invite_ok = false
+if invites_ok == true
+  invite_ok = true
+end
+
+options = {:invite_ok=>invite_ok,:username => username,:fullname => fullname,:nickname => nickname,:nickserv_password=>nickserv_password, :hostname => hostname,:port => port,:token => token,:ssl => ssl,:logger=>Log}
 
 
 # Make the bot object

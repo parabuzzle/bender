@@ -10,14 +10,16 @@ log:
 pid_file: bender.pid
 
 irc:
-    hostname: localhost
+    hostname: irc.freenode.net
     port: 6667
     username: bender
     fullname: bender
     nickname: bender_test
-    #token: nil
-    #ssl: true
+    invites_ok: true
+    #nickserv_password: password
     rooms: ['#bender-test']
+    #token: test
+    #ssl: true
     
 http_listener:
     port: 9091

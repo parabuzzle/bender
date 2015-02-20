@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/parabuzzle/bender.png?label=ready&title=Ready)](https://waffle.io/parabuzzle/bender)
 #Install
 
 **Install Gems**

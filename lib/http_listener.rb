@@ -2,7 +2,7 @@ require 'webrick'
 
 module HttpListener
 
-  def HttpListener.start_http_listener(bot)
+  def self.start_http_listener(bot)
     @bot           = bot
     log_file       = ENV['HTTP_LOG_FILE']       || STDOUT
     port           = ENV['PORT']                || 9091

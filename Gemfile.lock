@@ -28,6 +28,7 @@ GEM
       rb-inotify (>= 0.9)
     lumberjack (1.0.9)
     method_source (0.8.2)
+    mono_logger (1.1.0)
     nenv (0.2.0)
     notiffany (0.0.6)
       nenv (~> 0.1)
@@ -66,6 +67,7 @@ DEPENDENCIES
   bundler
   guard
   guard-rspec
+  mono_logger
   pry
   rspec
   spunk (~> 0.1.3)

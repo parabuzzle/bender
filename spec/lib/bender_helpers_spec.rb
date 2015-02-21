@@ -1,8 +1,8 @@
 require 'bender_helpers'
-include BenderHelpers
+include Bender::Helpers
 
 
-describe BenderHelpers do
+describe Bender::Helpers do
 
   before(:each) do
     @pid_file = ENV['PID_FILE'] = './bender.pid.test'
@@ -51,4 +51,10 @@ describe BenderHelpers do
     end
   end
 
+  describe '#spunk_options_from_config' do
+    it 'returns a config hash for spunk based on the Bender::Config object' do
+      c = spunk_options_from_config
+      expect( c[:nickname] ).to eq('bender')
+    end
+  end
 end

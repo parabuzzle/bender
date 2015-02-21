@@ -1,39 +1,41 @@
 require 'webrick'
+require 'mono_logger'
 
-module HttpListener
+module Bender
+  module HttpListener
 
-  def self.start_http_listener(bot)
-    @bot           = bot
-    log_file       = ENV['HTTP_LOG_FILE']       || STDOUT
-    port           = ENV['PORT']                || 9091
-    max_clients    = ENV['HTTP_MAX_CLIENTS']    || 4
-    listen_address = ENV['HTTP_LISTEN_ADDRESS'] || '0.0.0.0'
+    def self.start(bot)
+      @bot = bot
 
-    if log_file == "!BENDER_LOGGER"
-      log_file = Log
-    end
-
-    begin
-      Log.info("starting http listener on port #{port}...")
-      server = WEBrick::HTTPServer.new(:Port => port,
-                                      :MaxClients => max_clients,
-                                      :Logger => WEBrick::Log.new(log_file),
-                                      :BindAddress => listen_address,
-                                      :bot=>bot)
-      Log.info "Starting servlets"
-      # load servlets
-      Dir["#{BENDER_ROOT}/servlets/*_servlet.rb"].each do |file|
-        file = file.split("/").last.gsub('.rb','')
-        klass = file.camelize.classify
-        server.mount klass.class_eval{@mountpoint}, klass
-        Log.info "Starting servlet #{file.camelize} mounted at #{klass.class_eval{@mountpoint}}"
+      if Bender.config.http_log_file == "!BENDER_LOGGER"
+        logger = Bender.log
+      else
+        logger = MonoLogger.new(Bender.config.http_log_file, Bender.config.http_log_rotation)
+        logger.level = Bender.config.HTTP_LOG_LEVEL
       end
 
-      trap "INT" do server.shutdown end
-      server.start
-    ensure
-      Log.info("http listener shutting down")
+      begin
+        Bender.log.info("starting http listener on port #{Bender.config.http_port}...")
+        server = WEBrick::HTTPServer.new(
+                                          :Port               => Bender.config.http_port,
+                                          :MaxClients         => Bender.config.http_max_clients,
+                                          :Logger             => logger,
+                                          :BindAddress        => Bender.config.http_listen_address,
+                                          :bot                => bot,
+                                        )
+        Bender.log.info "Starting servlets"
+        Bender::HTTP.constants.each do |i|
+          klass = "Bender::HTTP::#{i.to_s}".classify
+          server.mount klass.class_eval{@mountpoint}, klass
+          Bender.log.info "  Starting servlet: #{i.to_s} mounted at #{klass.class_eval{@mountpoint}}"
+        end
+        server.start
+
+      rescue => e
+        Bender.log.error "HTTP server caught execption"
+        Bender.log.error e
+        raise e
+      end
     end
   end
 end
-

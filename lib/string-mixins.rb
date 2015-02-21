@@ -25,12 +25,12 @@ class String
 
   def to_bool
     case self
-    when /true|t|yes|y/i
+    when /^true$|^t$|^yes$|^y$|^1$/i
       return true
-    when /1/
-      return true
-    else
+    when /^false$|^f$|^no$|^n$|^0$/i
       return false
+    else
+      raise TypeError, "'#{self}' can not be cast into a boolean"
     end
   end
 

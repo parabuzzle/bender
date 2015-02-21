@@ -18,9 +18,29 @@ $ ruby bender.rb
 
 
 ##Configuration
-You can configure bender using config.yml found in the top level directory. If you set the log file to STDOUT it will write the logs to the console. Otherwise, they will be written to the file defined by the setting.
+All configuration is done through environment variables:
 
-Also, if you set the http listener's log file to !BENDER_LOGGER the webrick log will use the same logger instance defined in the log section of the config script. These are separated out so that you can have your servlet access log separate from your application log. 
+  * IRC_LOG_FILE : The file to log to. defaults to `STDOUT`
+  * IRC_LOG_ROTATION : Log file rotation. defaults to `weekly`
+  * IRC_LOG_LEVEL : Log level. defaults to `INFO`
+  * IRC_USERNAME : The username for IRC. defaults to `bender`
+  * IRC_FULLNAME : The full name for IRC. defaults to `Bender Bending Rodriguez`
+  * IRC_NICKNAME : The actual IRC nickname. defaults to `bender`
+  * IRC_HOSTNAME : The irc server to connect to. defaults to `localhost`
+  * IRC_PORT : The irc port. defaults to `6667`
+  * IRC_TOKEN : The IRC Server's password. defaults to `nil`
+  * NICKSERV_PASSWORD : The password to send to nickserv's identify command. defaults to `nil`
+  * IRC_ROOMS : A comma-delimited list of rooms to connect to on start up. defaults to `nil`
+  * IRC_ACCEPT_INVITES : Tells bender to respond to invites. defaults to `true`
+  * IRC_USE_SSL : Use SSL. defaults to `false`
+  * DISABLE_HTTP : If present, Bender will skip starting the HTTP server
+  * HTTP_LOG_FILE : The file to log Webrick logs to. defaults to `STDOUT`
+  * PORT : The port to listen on. defaults to `9091`
+  * HTTP_MAX_CLIENTS : The max webrick clients. defaults to `4`
+  * HTTP_LISTEN_ADDRESS : The webrick listen address. defaults to `0.0.0.0`
+  * PID_FILE : The pid file to use. defaults to `./bender.pid`
+
+Also, if you set the http listener's log file to !BENDER_LOGGER the webrick log will use the same logger instance defined in the log section of the config script. These are separated out so that you can have your servlet access log separate from your application log.
 
 
 #Extending Bender
@@ -55,7 +75,7 @@ This is done by loading all ./processors/*_processor.rb files and camel casing t
 
 This is done by loading all ./servlets/*_servlet.rb files and camel casing the file name to the class. *ie - stats_servlet.rb is loaded as StatsServlet.new*
 
-Servlets also must have the mountpoint variable defined so that Bender knows what uri to mount your servlet class on... 
+Servlets also must have the mountpoint variable defined so that Bender knows what uri to mount your servlet class on...
 ```
 @mountpoint = "/stats" # will load StatsServlet on /stats on your web server
 ```
@@ -77,17 +97,17 @@ module BenderProcessor
       msg = hash[:msg]
       bot = hash[:bot]
       room = hash[:room]
-      
+
       if origin.nil?
         # if origin is nil.. just exit the processor now...
         return
       end
-      
+
       if origin.nickname == bot.nickname
         # if the bot is origin.. just exit the processor now...
         return
       end
-      
+
       # Parse Messages
       # http://rubular.com is really good for coming up with regex ;)
       case msg
@@ -95,7 +115,7 @@ module BenderProcessor
            # match 'nickname'
            # says "Kiss my shiny metal ass"
            bot.say room, "Kiss my shiny metal ass"
-          
+
           when /^#{bot.nickname},? version$/i
             # match 'nickname, version'
             # says version
@@ -111,7 +131,7 @@ module BenderProcessor
             # says "Goodbye Cruel World" and kicks its self out of the room
             bot.say room, "Goodbye Cruel World"
             bot.say room, "/kick #{bot.nickname}"
-        
+
       end # end case messages
     end # end MyProcessor#call
   end # end MyProcessor
@@ -125,7 +145,7 @@ You simply put this code in ./processors/my_processor.rb and researt Bender for 
 
 
 ### Building a servlet
-Since Bender uses webrick, creating a servlet for Bender is almost the same as creating an Abstract Servlet in Webrick. **ALMOST**... The only difference is that Bender will provide the Spunk Bot object in the request so that you can access the Spunk IRC bot from within the request to post messages to IRC or display IRC data to a webpage. This is done by inheriting from the BenderServlet class which has the bot. 
+Since Bender uses webrick, creating a servlet for Bender is almost the same as creating an Abstract Servlet in Webrick. **ALMOST**... The only difference is that Bender will provide the Spunk Bot object in the request so that you can access the Spunk IRC bot from within the request to post messages to IRC or display IRC data to a webpage. This is done by inheriting from the BenderServlet class which has the bot.
 
 **This is what servlet looks like**
 ```
@@ -158,7 +178,7 @@ class GitServlet < BenderServlet
 
   def post_to_irc(request)
     bot_hash = {:rooms=>[], :payload=>nil}
-    request.query.collect do |key,value| 
+    request.query.collect do |key,value|
       if key.match(/^room/)
         bot_hash[:rooms] << '#' + value
       end

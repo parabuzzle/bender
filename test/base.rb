@@ -15,6 +15,7 @@ require 'yaml'
 require 'logger'
 require 'webrick'
 require 'spunk'
+require 'pry'
 # require libs dir
 Dir["#{$LIB_BASE_DIR}/lib/*.rb"].each {|file| require file }
 # require servlets
@@ -22,16 +23,14 @@ Dir["#{$LIB_BASE_DIR}/servlets/*.rb"].each {|file| require file }
 # require parsers
 Dir["#{$LIB_BASE_DIR}/processors/*.rb"].each {|file| require file }
 
-# Load config
-CONFIG = YAML::load(File.open("#{$LIB_BASE_DIR}/config.yml"))
 
-# logger const is used throught the application... 
+# logger const is used throught the application...
 # just dump it to /dev/null for tests.
 Log = Logger.new("/dev/null")
 
 class TestBase < Test::Unit::TestCase
   def test_spunk_version
-    assert(SPUNK_VERSION > "0.1.0", "Your version of spunk is not compatible with Bender (#{SPUNK_VERSION} < 0.1.0)")
+    assert(SPUNK_VERSION >= "0.1.3", "Your version of spunk is not compatible with Bender (#{SPUNK_VERSION} < 0.1.3)")
   end
 end
 

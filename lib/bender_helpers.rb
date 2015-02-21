@@ -1,5 +1,5 @@
 module BenderHelpers
-  
+
   ##helper methods
   def pid_running?(pid)
     pid = pid.to_i
@@ -10,14 +10,14 @@ module BenderHelpers
       return false
     end
   end
-  
+
   def bender_pid
     return $$
   end
 
   def write_pid
     #write a pid file
-    file = CONFIG['pid_file']
+    file = ENV['PID_FILE'] || './bender.pid'
     #check for ophaned pid file and handle it
     if File.exist?(file)
       fh = File.new(file, "r")
@@ -41,12 +41,12 @@ module BenderHelpers
     fh.close
     return true
   end
-  
+
   def remove_pid
-    file = CONFIG['pid_file']
+    file = ENV['PID_FILE'] || './bender.pid'
     File.delete(file)
     Log.debug "removing pid file #{file}"
     return true
   end
-  
+
 end

@@ -5,64 +5,53 @@ require 'logger'
 require 'yaml'
 require 'webrick'
 require 'spunk'
+require 'pry'
 
-if SPUNK_VERSION < "0.1.0"
+if SPUNK_VERSION < "0.1.3"
   # Check spunk version
-  puts "Requires Spunk version 0.1.0 or greater"
+  puts "Requires Spunk version 0.1.3 or greater"
   puts "Your version is #{SPUNK_VERSION}"
   exit 1
 end
 
 # Set constants
 BENDER_ROOT=Dir.pwd
-BENDER_VERSION = "0.0.1"
+BENDER_VERSION = "0.1.0"
 $0 = "bender"
 
-# require libs dir
-Dir["./lib/*.rb"].each {|file| require file }
-
-# require servlets
-Dir["./servlets/*.rb"].each {|file| require file }
-
-# require parsers
-Dir["./processors/*.rb"].each {|file| require file }
+%w(./lib ./servlets ./processors).each do |path|
+  Dir["#{path}/*.rb"].each {|file| require file }
+end
 
 # include helpers
 include BenderHelpers
 
-# load config
-CONFIG = YAML::load(File.open("config.yml"))
-
 #start the logger
-if CONFIG['log']['file'].match(/^STDOUT$/)
-  lfile = STDOUT
-else
-  lfile = CONFIG['log']['file']
-end
-Log = Logger.new(lfile, CONFIG['log']['rotation']) 
-Log.level = eval("Logger::#{CONFIG['log']['level']}")
+log_file     = ENV['IRC_LOG_FILE']     || STDOUT
+log_rotation = ENV['IRC_LOG_ROTATION'] || 'weekly'
+log_level    = ENV['IRC_LOG_LEVEL']    || 'INFO'
+
+Log = Logger.new(log_file, log_rotation)
+Log.level = eval("Logger::#{log_level}")
 Log.info("## Starting bender ##")
 
-#write the pid file 
+#write the pid file
 write_pid
 
 #Set up the irc
-username = CONFIG['irc']['username'] ||= "bender"
-fullname = CONFIG['irc']['fullname'] ||= "bender"
-nickname = CONFIG['irc']['nickname'] ||= "bender"
-hostname = CONFIG['irc']['hostname'] ||="localhost"
-invites_ok = CONFIG['irc']['invites_ok']
-nickserv_password = CONFIG['irc']['nickserv_password'] ||= nil
-port = CONFIG['irc']['port'] ||= 6667
-token = CONFIG['irc']['token'] ||= nil
-ssl = CONFIG['irc']['ssl'] ||= false
-invite_ok = false
-if invites_ok == true
-  invite_ok = true
-end
+username           = ENV['IRC_USERNAME']               || "bender"
+fullname           = ENV['IRC_FULLNAME']               || "Bender Bending Rodriguez"
+nickname           = ENV['IRC_NICKNAME']               || "bender"
+hostname           = ENV['IRC_HOSTNAME']               || "localhost"
+nickserv_password  = ENV['NICKSERV_PASSWORD']          || nil
+port               = ENV['IRC_PORT']                   || 6667
+token              = ENV['IRC_TOKEN']                  || nil
+
+default_rooms_list = ENV['IRC_ROOMS']          ? ENV['IRC_ROOMS'].split(',')       : nil
+invite_ok          = ENV['IRC_ACCEPT_INVITES'] ? ENV['IRC_ACCEPT_INVITES'].to_bool : true
+ssl                = ENV['IRC_USE_SSL']        ? ENV['IRC_USE_SSL'].to_bool        : false
 
 options = {:invite_ok=>invite_ok,:username => username,:fullname => fullname,:nickname => nickname,:nickserv_password=>nickserv_password, :hostname => hostname,:port => port,:token => token,:ssl => ssl,:logger=>Log}
-
 
 # Make the bot object
 begin
@@ -76,17 +65,19 @@ rescue SpunkException::BotException
 end
 
 #connect to default rooms
-CONFIG['irc']['rooms'].each { |room| @bot.join_room room }
+Log.info "joining rooms"
+default_rooms_list.each { |room|
+  Log.debug "  joining #{room}"
+  @bot.join_room room
+}
 
 
 # fork off irc bot if enabled
-unless CONFIG['listeners']['irc'] == false
-  Log.debug "Starting irc listener thread"
-  irc_bot = Thread.new {sleep 2; IrcListener.start_irc_listener(@bot)}
-end
+Log.debug "Starting irc listener thread"
+irc_bot = Thread.new {sleep 2; IrcListener.start_irc_listener(@bot)}
 
 # fork off web_listener if enabled
-unless CONFIG['listeners']['http'] == false
+unless ENV['DISABLE_HTTP']
   Log.debug "Starting http listner thread"
   http_listener = Thread.new {sleep 2; HttpListener.start_http_listener(@bot)}
 end
@@ -119,7 +110,7 @@ trap("TERM") do
 end
 
 #start the main loop
-loop do 
+loop do
   # loop forever!
   if stop == true
     # If stop was set to true by a signal handler
@@ -150,21 +141,19 @@ loop do
     # If stop is set to false we continue running
     # We also check to see if a thread has died
     # and restart the dead threads as needed
-    unless CONFIG['listeners']['irc'] == false
-      # if Irc bot is active
-      unless irc_bot.alive?
-        # If the Irc bot is dead
-        # log that it crashed and restart it
-        Log.error("irc listener looks crashed. restarting...")
-        irc_bot = Thread.new {IrcListener.start_irc_listener(@bot)}
-        # put the new ircbot in the array
-        threads = [http_listener, irc_bot]
-        # sleep for 1 second to ensure that the thread status is alive
-        # and the next loop doesn't spawn another ircbot thread
-        sleep 1
-      end
+    # if Irc bot is active
+    unless irc_bot.alive?
+      # If the Irc bot is dead
+      # log that it crashed and restart it
+      Log.error("irc listener looks crashed. restarting...")
+      irc_bot = Thread.new {IrcListener.start_irc_listener(@bot)}
+      # put the new ircbot in the array
+      threads = [http_listener, irc_bot]
+      # sleep for 1 second to ensure that the thread status is alive
+      # and the next loop doesn't spawn another ircbot thread
+      sleep 1
     end
-    unless CONFIG['listeners']['http'] == false
+    unless ENV['DISABLE_HTTP']
       # if http listener is active
       unless http_listener.alive?
         # If the http listener is dead

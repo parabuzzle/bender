@@ -1,5 +1,5 @@
 class String
-  
+
   def capitalize_first_letter
       self[0].chr.capitalize + self[1, size]
     end
@@ -10,7 +10,7 @@ class String
         self
       end
     end
-  
+
   def camelize
     a = self.split("_")
     a.each do |b|
@@ -18,9 +18,20 @@ class String
     end
     return a.join("")
   end
-  
+
   def classify
     return eval(self)
   end
-  
+
+  def to_bool
+    case self
+    when /true|t|yes|y/i
+      return true
+    when /1/
+      return true
+    else
+      return false
+    end
+  end
+
 end

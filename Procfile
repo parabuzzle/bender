@@ -1,1 +1,1 @@
-web: bundle exec ruby ./bender.rb
+web: bundle exec ruby ./bin/server.rb

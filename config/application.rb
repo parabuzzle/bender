@@ -17,7 +17,7 @@ Bender::Config.configure do |config|
   # override config parameters here
 
   # Shared Token for Admin-y pages
-  config.http_shared_secret    = 'youshouldchangethis'
+  config.http_shared_secret    = ENV['HTTP_SHARED_SECRET'] || 'youshouldchangethis'
 
 
   ## IRC Bot Logging Parameters

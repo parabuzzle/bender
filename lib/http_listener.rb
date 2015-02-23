@@ -10,6 +10,7 @@ module Bender
   # License::   MIT
   module HttpListener
 
+    # Starts the WEBrick server and mounts all the servlets
     def self.start(bot)
       @bot = bot
 

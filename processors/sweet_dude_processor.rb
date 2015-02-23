@@ -1,16 +1,16 @@
-# Description:
-#   Dude Where's My Car? c'mon!
-#
-# Dependencies:
-#   none
-#
-# Configuration:
-#   none
-#
-# Authors:
-#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-
 module Bender::Processor
+
+  # Description::
+  #   Dude Where's My Car? c'mon!
+  #
+  # Dependencies::
+  #   none
+  #
+  # Configuration::
+  #   none
+  #
+  # Authors::
+  #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
   class SweetDudeProcessor < Bender::BaseProcessor
     def process
       hear(/sweet/i) { reply 'Dude!' }

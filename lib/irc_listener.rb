@@ -7,6 +7,7 @@ module Bender
   # License::   MIT
   module IrcListener
 
+    # Loads all the IRC text processors
     def self.start(bot)
       @bot = bot
       begin

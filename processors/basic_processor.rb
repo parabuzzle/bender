@@ -1,20 +1,20 @@
-# Description:
-#   All the basic stuff Bender should do
-#
-# Dependencies:
-#   none
-#
-# Configuration:
-#   none
-#
-# Authors:
-#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-
 module Bender::Processor
+
+  # Description::
+  #   All the basic stuff Bender should do
+  #
+  # Dependencies::
+  #   none
+  #
+  # Configuration::
+  #   none
+  #
+  # Authors::
+  #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
   class BasicProcessor < Bender::BaseProcessor
     def process
-      respond(/version\??$/i) { reply "#{Bender::VERSION}" }
-      respond(/PING$/) { reply "PONG" }
+      respond(/version\??$/i)       { reply "#{Bender::VERSION}" }
+      respond(/PING$/)              { reply "PONG" }
       hear(/^#{@bot.nickname}\??$/) { reply 'Kiss my shiny metal ass' }
     end
 

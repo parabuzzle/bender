@@ -12,19 +12,21 @@ module Bender
   # License::   MIT
   class Config
     include Singleton
-    attr_reader :config_hash
 
+    # creates the instance and sets the defaults
     def initialize
       @mutex = Mutex.new
       @config_hash = {}
       set_defaults
     end
 
+    # Takes a block for configuring Bender
     def self.configure(&block)
       yield self.instance if block_given?
       self.instance
     end
 
+    # Sets the Log Level using a string or symbol passed for `level`
     def irc_log_level=(level)
       set(:irc_log_level, MonoLogger.const_get(level))
       if self.log
@@ -42,14 +44,19 @@ module Bender
 
     private
 
+      # Sets the config `key` with `value` through a semaphore
+      # @note This should only be used by #method_missing
       def set(key, value)
         @mutex.synchronize { @config_hash[key] = value }
       end
 
+      # Gets the config `key`
+      # @note This should only be used by #method_missing
       def get(key)
         @config_hash[key]
       end
 
+      # Sets all the defaults when the instance is initialized
       def set_defaults
         # IRC Logging
         self.irc_log_file        = ENV['IRC_LOG_FILE']      || STDOUT

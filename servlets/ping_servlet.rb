@@ -1,16 +1,16 @@
-# Description:
-#   A simple ping endpoint
-#
-# Dependencies:
-#   none
-#
-# Configuration:
-#   none
-#
-# Authors:
-#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-
 module Bender::HTTP
+
+  # Description:
+  #   a simple ping endpoint
+  #
+  # Dependencies::
+  #   none
+  #
+  # Configuration::
+  #   none
+  #
+  # Authors::
+  #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
   class PingServlet < Bender::BaseServlet
 
     def do_GET(request, response)

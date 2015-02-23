@@ -1,16 +1,16 @@
-# Description:
-#   Provides information about the bot
-#
-# Dependencies:
-#   none
-#
-# Configuration:
-#   Bender.config.http_auth_token
-#
-# Authors:
-#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-
 module Bender::HTTP
+
+  # Description::
+  #   provides information about the bot
+  #
+  # Dependencies::
+  #   none
+  #
+  # Configuration::
+  #   Bender.config.http_auth_token
+  #
+  # Authors::
+  #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
   class StatsServlet < Bender::BaseServlet
 
     def do_GET(request, response)

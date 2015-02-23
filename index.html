@@ -31,71 +31,35 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>
+        <p><a href="https://waffle.io/parabuzzle/bender"><img src="https://badge.waffle.io/parabuzzle/bender.png?label=ready&amp;title=Ready" alt="Stories in Ready"></a></p>
+
+<h1>
 <a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h1>
-
-<p><strong>Install Gems</strong></p>
-
-<pre><code>$ gem install spunk
-</code></pre>
 
 <p><strong>Grab Application</strong></p>
 
 <pre><code>$ git clone git://github.com/parabuzzle/bender.git
 </code></pre>
 
+<p><strong>Install Gems</strong></p>
+
+<pre><code>$ bundle install
+</code></pre>
+
 <p><strong>Run It</strong></p>
 
 <pre><code>$ cd bender
-$ ruby bender.rb
+$ ruby bin/server.rb
 </code></pre>
+
+<p><em>note: you can also use foreman to run it: <code>foreman start</code></em></p>
 
 <h2>
 <a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h2>
 
-<p>All configuration is done through environment variables:</p>
+<p>Look at <code>config/application.rb</code> for a list of configuration options and overrides</p>
 
-<ul>
-<li>IRC_LOG_FILE : The file to log to. defaults to <code>STDOUT</code>
-</li>
-<li>IRC_LOG_ROTATION : Log file rotation. defaults to <code>weekly</code>
-</li>
-<li>IRC_LOG_LEVEL : Log level. defaults to <code>INFO</code>
-</li>
-<li>IRC_USERNAME : The username for IRC. defaults to <code>bender</code>
-</li>
-<li>IRC_FULLNAME : The full name for IRC. defaults to <code>Bender Bending Rodriguez</code>
-</li>
-<li>IRC_NICKNAME : The actual IRC nickname. defaults to <code>bender</code>
-</li>
-<li>IRC_HOSTNAME : The irc server to connect to. defaults to <code>localhost</code>
-</li>
-<li>IRC_PORT : The irc port. defaults to <code>6667</code>
-</li>
-<li>IRC_TOKEN : The IRC Server's password. defaults to <code>nil</code>
-</li>
-<li>NICKSERV_PASSWORD : The password to send to nickserv's identify command. defaults to <code>nil</code>
-</li>
-<li>IRC_ROOMS : A comma-delimited list of rooms to connect to on start up. defaults to <code>nil</code>
-</li>
-<li>IRC_ACCEPT_INVITES : Tells bender to respond to invites. defaults to <code>true</code>
-</li>
-<li>IRC_USE_SSL : Use SSL. defaults to <code>false</code>
-</li>
-<li>DISABLE_HTTP : If present, Bender will skip starting the HTTP server</li>
-<li>HTTP_LOG_FILE : The file to log Webrick logs to. defaults to <code>STDOUT</code>
-</li>
-<li>PORT : The port to listen on. defaults to <code>9091</code>
-</li>
-<li>HTTP_MAX_CLIENTS : The max webrick clients. defaults to <code>4</code>
-</li>
-<li>HTTP_LISTEN_ADDRESS : The webrick listen address. defaults to <code>0.0.0.0</code>
-</li>
-<li>PID_FILE : The pid file to use. defaults to <code>./bender.pid</code>
-</li>
-</ul>
-
-<p>Also, if you set the http listener's log file to !BENDER_LOGGER the webrick log will use the same logger instance defined in the log section of the config script. These are separated out so that you can have your servlet access log separate from your application log.</p>
+<p><em>note: Bender is 100% Heroku compatible and configurable via the ENV - <a href="https://github.com/parabuzzle/bender/wiki/Using-Bender-on-Heroku">https://github.com/parabuzzle/bender/wiki/Using-Bender-on-Heroku</a></em></p>
 
 <h1>
 <a id="extending-bender" class="anchor" href="#extending-bender" aria-hidden="true"><span class="octicon octicon-link"></span></a>Extending Bender</h1>
@@ -105,23 +69,22 @@ $ ruby bender.rb
 <h3>
 <a id="directory-structure" class="anchor" href="#directory-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Directory Structure</h3>
 
-<pre><code>./bender.rb     #main routine - attaches to shell and runs the bot
-./start.sh      #runs main bender.rb and detaches
-./stop.sh       #uses the pid file to kill off the bender
-./config.yml    #configuration file
-./lib/          #directory with all needed libraries (classes/modules)
-./processors/   #directory for irc command processors
-./servlets/     #directory for servlets
+<pre><code>./config/       # config and initialization
+./lib/          # directory with all support libraries (classes/modules)
+./processors/   # directory for irc command processors
+./servlets/     # directory for servlets
 </code></pre>
 
 <h3>
 <a id="autoloader" class="anchor" href="#autoloader" aria-hidden="true"><span class="octicon octicon-link"></span></a>Autoloader</h3>
 
-<p>When Bender starts, it auto loads everything so that you just put your extensions in the proper folders with the proper naming convention and restart the application for it to start working. NO EXTRA CONFIG!</p>
+<p>When Bender starts, it auto loads everything so that you just put your extensions in the proper folders with the proper namespacing and restart the application for it to start working. NO EXTRA CONFIG!</p>
 
 <p><strong>Load Order</strong></p>
 
 <ol>
+<li>Require ./config/application.rb</li>
+<li>Require all files in ./config/*.rb</li>
 <li>Require all files in ./lib/*.rb</li>
 <li>Require all files in ./servlets/*.rb</li>
 <li>Require all files in ./processors/*.rb</li>
@@ -131,157 +94,165 @@ $ ruby bender.rb
 
 <p><strong>Autoload of Processors</strong></p>
 
-<p>This is done by loading all ./processors/<em>_processor.rb files and camel casing the file name to load the class. *ie - base_processor.rb is loaded as BaseProcessor.new</em></p>
+<p>This is done via the <code>Bender::Processor</code> namespace. As long as your processor's class is namespaced there, it will be loaded.</p>
+
+<p>example:</p>
+
+<div class="highlight highlight-ruby"><pre><span class="pl-s3">Bender</span>::<span class="pl-s3">Processor</span>::<span class="pl-vo">BasicProcessor</span> <span class="pl-c">#=&gt; loaded</span>
+<span class="pl-s3">Bender</span>::<span class="pl-s3">Processor</span>::<span class="pl-vo">AwesomeSauce</span>   <span class="pl-c">#=&gt; loaded</span>
+<span class="pl-s3">Bender</span>::<span class="pl-vo">WizBangProcessor</span>          <span class="pl-c">#=&gt; not loaded</span></pre></div>
 
 <p><strong>Autoload of Servlets</strong></p>
 
-<p>This is done by loading all ./servlets/<em>_servlet.rb files and camel casing the file name to the class. *ie - stats_servlet.rb is loaded as StatsServlet.new</em></p>
+<p>This is done via the <code>Bender::HTTP</code> namespace. As long as your servlet's class is namespaced there, it will be loaded.</p>
 
-<p>Servlets also must have the mountpoint variable defined so that Bender knows what uri to mount your servlet class on...</p>
+<p>example:</p>
 
-<pre><code>@mountpoint = "/stats" # will load StatsServlet on /stats on your web server
-</code></pre>
+<div class="highlight highlight-ruby"><pre><span class="pl-s3">Bender</span>::<span class="pl-s3">HTTP</span>::<span class="pl-vo">PingServlet</span>  <span class="pl-c">#=&gt; loaded</span>
+<span class="pl-s3">Bender</span>::<span class="pl-s3">HTTP</span>::<span class="pl-vo">Github</span>       <span class="pl-c">#=&gt; loaded</span>
+<span class="pl-s3">Bender</span>::<span class="pl-vo">MyServlet</span>          <span class="pl-c">#=&gt; not loaded</span></pre></div>
 
 <p><strong>More info about creating processors and servlets in the next section</strong></p>
 
 <h3>
 <a id="building-an-irc-command-processor" class="anchor" href="#building-an-irc-command-processor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building an irc command processor</h3>
 
-<p>This is a simple IOC (inversion of control) style system where you define a class that implements the "call" method that takes a hash as its argument.</p>
+<p>Just subclass <code>Bender::BaseProcessor</code> and implement the <code>#process</code> method</p>
 
 <p><strong>This is what a processor looks like:</strong></p>
 
-<pre><code>module BenderProcessor
-  class MyProcessor
-    def call(hash)
-      # helper variables
-      command = hash[:command]
-      origin = hash[:origin]
-      msg = hash[:msg]
-      bot = hash[:bot]
-      room = hash[:room]
+<div class="highlight highlight-ruby"><pre><span class="pl-k">module</span> <span class="pl-en"><span class="pl-e">Bender::</span>Processor</span>
+  <span class="pl-k">class</span> <span class="pl-en">BasicProcessor<span class="pl-e"> &lt; Bender::BaseProcessor</span></span>
 
-      if origin.nil?
-        # if origin is nil.. just exit the processor now...
-        return
-      end
+    <span class="pl-c"># REQUIRED! You must implement the #process method when subclassing the BaseProcessor class</span>
+    <span class="pl-k">def</span> <span class="pl-en">process</span>
 
-      if origin.nickname == bot.nickname
-        # if the bot is origin.. just exit the processor now...
-        return
-      end
+      <span class="pl-c">#monitor for the word 'sweet' and respond with 'dude'</span>
+      hear(<span class="pl-sr"><span class="pl-pds">/</span>sweet<span class="pl-pds">/i</span></span>) { reply <span class="pl-s1"><span class="pl-pds">'</span>Dude!<span class="pl-pds">'</span></span> }
 
-      # Parse Messages
-      # http://rubular.com is really good for coming up with regex ;)
-      case msg
-         when /^#{bot.nickname},?$/i
-           # match 'nickname'
-           # says "Kiss my shiny metal ass"
-           bot.say room, "Kiss my shiny metal ass"
+      <span class="pl-c"># monitor for my nickname with or without a question mark and respond</span>
+      <span class="pl-c">#   ie: `bender?` responds with 'Kiss my shiny metal ass'</span>
+      hear(<span class="pl-sr"><span class="pl-pds">/</span>^<span class="pl-pse">#{</span><span class="pl-s2"><span class="pl-vo">@bot</span>.nickname</span><span class="pl-pse"><span class="pl-s2">}</span></span><span class="pl-cce">\?</span>?$<span class="pl-pds">/</span></span>) { reply <span class="pl-s1"><span class="pl-pds">'</span>Kiss my shiny metal ass<span class="pl-pds">'</span></span> }
 
-          when /^#{bot.nickname},? version$/i
-            # match 'nickname, version'
-            # says version
-            bot.say room, BENDER_VERSION
+      <span class="pl-c"># respond wraps the previous bot.nickname catching and matches on everything after the nickname</span>
+      <span class="pl-c">#   ie: `bender PING` will respond with 'PONG'</span>
+      respond(<span class="pl-sr"><span class="pl-pds">/</span>PING$<span class="pl-pds">/</span></span>) { reply <span class="pl-s1"><span class="pl-pds">"</span>PONG<span class="pl-pds">"</span></span> }
+    <span class="pl-k">end</span>
 
-          when /^#{bot.nickname}.? say hello/i
-            # match 'nickname, say hello'
-            # says "Hello World"
-            bot.say room, "Hello World"
+    <span class="pl-c"># The #help class method is optional but it makes running `bender help` a lot more useful ;)</span>
+    <span class="pl-c"># This method should return an array of lines to be printed in the irc</span>
+    <span class="pl-k">def</span> <span class="pl-en">self.help</span>
+      [
+        <span class="pl-s1"><span class="pl-pds">"</span>sweet - replies with 'dude'<span class="pl-pds">"</span></span>,
+        <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-pse">#{</span><span class="pl-s2"><span class="pl-s3">Bender</span>.nickname</span><span class="pl-pse"><span class="pl-s2">}</span></span> PING - replies with 'PONG'<span class="pl-pds">"</span></span>,
+        <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-pse">#{</span><span class="pl-s2"><span class="pl-s3">Bender</span>.nickname</span><span class="pl-pse"><span class="pl-s2">}</span></span>? - replies with 'Kiss my shiny metal ass<span class="pl-pds">"</span></span>
+      ]
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span></pre></div>
 
-          when /^#{bot.nickname},? say goodbye/i
-            # match 'nickname, say goodbye'
-            # says "Goodbye Cruel World" and kicks its self out of the room
-            bot.say room, "Goodbye Cruel World"
-            bot.say room, "/kick #{bot.nickname}"
-
-      end # end case messages
-    end # end MyProcessor#call
-  end # end MyProcessor
-end # end BenderProcessor
-</code></pre>
-
-<p>You simply put this code in ./processors/my_processor.rb and researt Bender for this to start working.</p>
-
-<p><em>note - my_processor.rb matches the class name of MyProcessor</em></p>
-
-<p><em>also note - MyProcessor is in the BenderProcessor module... This is because Bender only loads processors within the BenderProcessor namespace - BenderProcessor::MyProcessor.new</em></p>
+<p>You simply put this code in the <code>./processors/</code> directory and restart Bender for this to start working.</p>
 
 <h3>
 <a id="building-a-servlet" class="anchor" href="#building-a-servlet" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building a servlet</h3>
 
-<p>Since Bender uses webrick, creating a servlet for Bender is almost the same as creating an Abstract Servlet in Webrick. <strong>ALMOST</strong>... The only difference is that Bender will provide the Spunk Bot object in the request so that you can access the Spunk IRC bot from within the request to post messages to IRC or display IRC data to a webpage. This is done by inheriting from the BenderServlet class which has the bot.</p>
+<p>Since Bender uses webrick, creating a servlet for Bender is almost the same as creating an Abstract Servlet in Webrick. <strong>ALMOST</strong>... The only difference is that Bender will provide the Spunk Bot object so that you can access the Spunk IRC bot from within the request to post messages to IRC or display IRC data to a webpage. This is done by inheriting from the <code>Bender::BaseServlet</code> class which has the bot.</p>
 
 <p><strong>This is what servlet looks like</strong></p>
 
-<pre><code>class GitServlet &lt; BenderServlet
-  # Provides a simple bridge of github url post hook data to IRC
-  # http://localhost:9091/gitirc?room=github
-  @mountpoint = "/gitirc" # required for Bender to know where to mount the servlet
+<div class="highlight highlight-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">GitServlet<span class="pl-e"> &lt; Bender::BaseServlet</span></span>
+  <span class="pl-c"># Provides a simple bridge of github url post hook data to IRC</span>
+  <span class="pl-c"># http://localhost:9091/gitirc?room=github</span>
 
-  def do_GET(request, response)
-    status = 200
-    content_type = "text/html"
-    body = "bender version #{BENDER_VERSION}"
-    body += "\n"
+  <span class="pl-c"># REQUIRED! so Bender knows where to mount this</span>
+  <span class="pl-k">def</span> <span class="pl-en">self.mountpoint</span>
+    <span class="pl-s1"><span class="pl-pds">"</span>/gitirc<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
 
-    response.status = status
-    response['Content-Type'] = content_type
-    response.body = body
-    response.body = body
-  end
+  <span class="pl-k">def</span> <span class="pl-en">do_GET</span>(<span class="pl-vpf">request</span>, <span class="pl-vpf">response</span>)
+    status <span class="pl-k">=</span> <span class="pl-c1">200</span>
+    content_type <span class="pl-k">=</span> <span class="pl-s1"><span class="pl-pds">"</span>text/html<span class="pl-pds">"</span></span>
+    body <span class="pl-k">=</span> <span class="pl-s1"><span class="pl-pds">"</span>bender version <span class="pl-pse">#{</span><span class="pl-s2"><span class="pl-vo">BENDER_VERSION</span></span><span class="pl-pse"><span class="pl-s2">}</span></span><span class="pl-pds">"</span></span>
+    body <span class="pl-k">+=</span> <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
 
-  def do_POST(request, response)
-    status, content_type, body = post_to_irc(request)
+    response.status <span class="pl-k">=</span> status
+    response[<span class="pl-s1"><span class="pl-pds">'</span>Content-Type<span class="pl-pds">'</span></span>] <span class="pl-k">=</span> content_type
+    response.body <span class="pl-k">=</span> body
+    response.body <span class="pl-k">=</span> body
+  <span class="pl-k">end</span>
 
-    response.status = status
-    response['Content-Type'] = content_type
-    response.body = body
-  end
+  <span class="pl-k">def</span> <span class="pl-en">do_POST</span>(<span class="pl-vpf">request</span>, <span class="pl-vpf">response</span>)
+    status, content_type, body <span class="pl-k">=</span> post_to_irc(request)
 
-  private
+    response.status <span class="pl-k">=</span> status
+    response[<span class="pl-s1"><span class="pl-pds">'</span>Content-Type<span class="pl-pds">'</span></span>] <span class="pl-k">=</span> content_type
+    response.body <span class="pl-k">=</span> body
+  <span class="pl-k">end</span>
 
-  def post_to_irc(request)
-    bot_hash = {:rooms=&gt;[], :payload=&gt;nil}
-    request.query.collect do |key,value|
-      if key.match(/^room/)
-        bot_hash[:rooms] &lt;&lt; '#' + value
-      end
-      if key.match(/^payload/)
-        bot_hash[:payload] = value
-      end
-    end
-    rooms = bot_hash[:rooms]
+  <span class="pl-k">private</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">post_to_irc</span>(<span class="pl-vpf">request</span>)
+    bot_hash <span class="pl-k">=</span> {<span class="pl-c1">:rooms</span>=&gt;[], <span class="pl-c1">:payload</span>=&gt;<span class="pl-c1">nil</span>}
+    request.query.collect <span class="pl-k">do </span>|<span class="pl-vo">key</span>,<span class="pl-vo">value</span>|
+      <span class="pl-k">if</span> key.match(<span class="pl-sr"><span class="pl-pds">/</span>^room<span class="pl-pds">/</span></span>)
+        bot_hash[<span class="pl-c1">:rooms</span>] <span class="pl-k">&lt;&lt;</span> <span class="pl-s1"><span class="pl-pds">'</span>#<span class="pl-pds">'</span></span> <span class="pl-k">+</span> value
+      <span class="pl-k">end</span>
+      <span class="pl-k">if</span> key.match(<span class="pl-sr"><span class="pl-pds">/</span>^payload<span class="pl-pds">/</span></span>)
+        bot_hash[<span class="pl-c1">:payload</span>] <span class="pl-k">=</span> value
+      <span class="pl-k">end</span>
+    <span class="pl-k">end</span>
+    rooms <span class="pl-k">=</span> bot_hash[<span class="pl-c1">:rooms</span>]
     rooms.uniq!
 
-    if bot_hash[:payload]
-      j = JSON.parse(bot_hash[:payload])
-      repo = j['repository']['name']
-      compare = j['compare']
-      pusher = j['pusher']['name']
-      owner = j['repository']['owner']['name']
-      branch = j['ref']
-      unless pusher == "name"
-        rooms.each do |r|
-          unless $bot.joined_rooms.include? r
-            @bot.join_room r
-          end
-          @bot.say r, "[git-push] #{pusher} pushed to #{owner}/#{repo} [ref: #{branch}]"
-          @bot.say r, "[git-push] #{compare}"
-        end
-      end
-    end
+    <span class="pl-k">if</span> bot_hash[<span class="pl-c1">:payload</span>]
+      j <span class="pl-k">=</span> <span class="pl-s3">JSON</span>.parse(bot_hash[<span class="pl-c1">:payload</span>])
+      repo <span class="pl-k">=</span> j[<span class="pl-s1"><span class="pl-pds">'</span>repository<span class="pl-pds">'</span></span>][<span class="pl-s1"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]
+      compare <span class="pl-k">=</span> j[<span class="pl-s1"><span class="pl-pds">'</span>compare<span class="pl-pds">'</span></span>]
+      pusher <span class="pl-k">=</span> j[<span class="pl-s1"><span class="pl-pds">'</span>pusher<span class="pl-pds">'</span></span>][<span class="pl-s1"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]
+      owner <span class="pl-k">=</span> j[<span class="pl-s1"><span class="pl-pds">'</span>repository<span class="pl-pds">'</span></span>][<span class="pl-s1"><span class="pl-pds">'</span>owner<span class="pl-pds">'</span></span>][<span class="pl-s1"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]
+      branch <span class="pl-k">=</span> j[<span class="pl-s1"><span class="pl-pds">'</span>ref<span class="pl-pds">'</span></span>]
+      <span class="pl-k">unless</span> pusher <span class="pl-k">==</span> <span class="pl-s1"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>
+        rooms.each <span class="pl-k">do </span>|<span class="pl-vo">r</span>|
+          <span class="pl-k">unless</span> <span class="pl-vo">$bot</span>.joined_rooms.include? r
+            <span class="pl-vo">@bot</span>.join_room r
+          <span class="pl-k">end</span>
+          <span class="pl-vo">@bot</span>.say r, <span class="pl-s1"><span class="pl-pds">"</span>[git-push] <span class="pl-pse">#{</span><span class="pl-s2">pusher</span><span class="pl-pse"><span class="pl-s2">}</span></span> pushed to <span class="pl-pse">#{</span><span class="pl-s2">owner</span><span class="pl-pse"><span class="pl-s2">}</span></span>/<span class="pl-pse">#{</span><span class="pl-s2">repo</span><span class="pl-pse"><span class="pl-s2">}</span></span> [ref: <span class="pl-pse">#{</span><span class="pl-s2">branch</span><span class="pl-pse"><span class="pl-s2">}</span></span>]<span class="pl-pds">"</span></span>
+          <span class="pl-vo">@bot</span>.say r, <span class="pl-s1"><span class="pl-pds">"</span>[git-push] <span class="pl-pse">#{</span><span class="pl-s2">compare</span><span class="pl-pse"><span class="pl-s2">}</span></span><span class="pl-pds">"</span></span>
+        <span class="pl-k">end</span>
+      <span class="pl-k">end</span>
+    <span class="pl-k">end</span>
 
-    return 200, "text/plain", "accepted"
-  end
-end
-</code></pre>
+    <span class="pl-k">return</span> <span class="pl-c1">200</span>, <span class="pl-s1"><span class="pl-pds">"</span>text/plain<span class="pl-pds">"</span></span>, <span class="pl-s1"><span class="pl-pds">"</span>accepted<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span></pre></div>
 
-<p>This servlet will listen for a post from your github post hook on your repo and bridge the data in to the room provided. <em>ie - <a href="http://myserver.com:9019/gitirc?room=github">http://myserver.com:9019/gitirc?room=github</a> will post to the #github room whenever you push to your repo</em></p>
+<p>This servlet will listen for a post from your github post hook on your repo and bridge the data into the room provided. <em>ie - <a href="http://myserver.com:9019/gitirc?room=github">http://myserver.com:9019/gitirc?room=github</a> will post to the #github room whenever you push to your repo</em></p>
 
-<p>This code should be put in to ./servlets/git_servlet.rb to be loaded as GitServlet on uri /gitirc</p>
+<p>This code should be put into the <code>./servlets/</code> directory to get included at startup.</p>
 
-<p><em>note the file name git_servlet.rb corresponds to the class name GitServlet</em></p>
+<h1>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributing</h1>
+
+<ol>
+<li>fork the repository</li>
+<li>create a feature branch</li>
+<li>add your awesome code</li>
+<li>send a pull request</li>
+<li>have a beer</li>
+</ol>
+
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h1>
+
+<p>The MIT License (MIT)</p>
+
+<p>Copyright (c) 2013-2015 Michael Heijmans</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
       </section>
     </div>
 

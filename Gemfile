@@ -1,13 +1,19 @@
 source "https://rubygems.org"
 
-# Core
-gem 'spunk', '~> 0.1.3'
-gem 'bundler'
-gem 'mono_logger'
+group :core do
+  gem 'spunk', '~> 0.1.3'
+  gem 'bundler'
+  gem 'mono_logger'
+end
 
-# Development
-# TODO: split these into groups
-gem 'pry'
-gem 'rspec'
-gem 'guard'
-gem 'guard-rspec', require: false
+group :development do
+  gem 'pry'
+  gem 'rspec'
+  gem 'guard'
+  gem 'guard-rspec', require: false
+end
+
+group :standalone do
+  gem 'foreman', require: false
+end
+

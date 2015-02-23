@@ -1,6 +1,12 @@
 require 'bender'
 
 module Bender
+
+  # These methods are used when starting and stop the server
+  #
+  # Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+  # Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+  # License::   MIT
   module Helpers
 
     ##helper methods
@@ -20,7 +26,7 @@ module Bender
 
     def write_pid
       #write a pid file
-      file = ENV['PID_FILE'] || './bender.pid'
+      file = Bender.config.pid_file
       #check for ophaned pid file and handle it
       if File.exist?(file)
         fh = File.new(file, "r")
@@ -46,7 +52,7 @@ module Bender
     end
 
     def remove_pid
-      file = ENV['PID_FILE'] || './bender.pid'
+      file = Bender.config.pid_file
       File.delete(file)
       Bender.log.debug "removing pid file #{file}"
       return true
@@ -74,6 +80,7 @@ module Bender
         c.log.info "joining default rooms"
 
         c.irc_rooms.each { |room|
+          room = '#' + room unless room.match(/^\#/)
           c.log.debug "  joining #{room}"
           c.bot.join_room room
         }

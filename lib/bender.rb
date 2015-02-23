@@ -1,3 +1,10 @@
+  # Top level Bender module
+  #   -- Provides some top-level class methods for working with Bender
+  #
+  # Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+  # Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+  # License::   MIT
+
 require 'config'
 
 module Bender

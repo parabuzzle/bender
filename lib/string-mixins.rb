@@ -1,3 +1,9 @@
+# Adds some needed methods to String objects
+#
+# Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+# Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+# License::   MIT
+
 class String
 
   def capitalize_first_letter

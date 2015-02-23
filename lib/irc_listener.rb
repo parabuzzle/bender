@@ -1,4 +1,10 @@
 module Bender
+
+  # Handles SpunkBot Processors and auto-mounting them
+  #
+  # Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+  # Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+  # License::   MIT
   module IrcListener
 
     def self.start(bot)

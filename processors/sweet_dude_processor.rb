@@ -1,3 +1,15 @@
+# Description:
+#   Dude Where's My Car? c'mon!
+#
+# Dependencies:
+#   none
+#
+# Configuration:
+#   none
+#
+# Authors:
+#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
+
 module Bender::Processor
   class SweetDudeProcessor < Bender::BaseProcessor
     def process

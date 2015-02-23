@@ -1,47 +1,31 @@
 [![Stories in Ready](https://badge.waffle.io/parabuzzle/bender.png?label=ready&title=Ready)](https://waffle.io/parabuzzle/bender)
-#Install
 
-**Install Gems**
-```
-$ gem install spunk
-```
+
+#Install
 
 **Grab Application**
 ```
 $ git clone git://github.com/parabuzzle/bender.git
 ```
 
+**Install Gems**
+```
+$ bundle install
+```
+
 **Run It**
 ```
 $ cd bender
-$ ruby bender.rb
+$ ruby bin/server.rb
 ```
+
+*note: you can also use foreman to run it: `foreman start`*
 
 
 ##Configuration
-All configuration is done through environment variables:
+Look at `config/application.rb` for a list of configuration options and overrides
 
-  * IRC_LOG_FILE : The file to log to. defaults to `STDOUT`
-  * IRC_LOG_ROTATION : Log file rotation. defaults to `weekly`
-  * IRC_LOG_LEVEL : Log level. defaults to `INFO`
-  * IRC_USERNAME : The username for IRC. defaults to `bender`
-  * IRC_FULLNAME : The full name for IRC. defaults to `Bender Bending Rodriguez`
-  * IRC_NICKNAME : The actual IRC nickname. defaults to `bender`
-  * IRC_HOSTNAME : The irc server to connect to. defaults to `localhost`
-  * IRC_PORT : The irc port. defaults to `6667`
-  * IRC_TOKEN : The IRC Server's password. defaults to `nil`
-  * NICKSERV_PASSWORD : The password to send to nickserv's identify command. defaults to `nil`
-  * IRC_ROOMS : A comma-delimited list of rooms to connect to on start up. defaults to `nil`
-  * IRC_ACCEPT_INVITES : Tells bender to respond to invites. defaults to `true`
-  * IRC_USE_SSL : Use SSL. defaults to `false`
-  * DISABLE_HTTP : If present, Bender will skip starting the HTTP server
-  * HTTP_LOG_FILE : The file to log Webrick logs to. defaults to `STDOUT`
-  * PORT : The port to listen on. defaults to `9091`
-  * HTTP_MAX_CLIENTS : The max webrick clients. defaults to `4`
-  * HTTP_LISTEN_ADDRESS : The webrick listen address. defaults to `0.0.0.0`
-  * PID_FILE : The pid file to use. defaults to `./bender.pid`
-
-Also, if you set the http listener's log file to !BENDER_LOGGER the webrick log will use the same logger instance defined in the log section of the config script. These are separated out so that you can have your servlet access log separate from your application log.
+*note: Bender is 100% Heroku compatible and configurable via the ENV - https://github.com/parabuzzle/bender/wiki/Using-Bender-on-Heroku*
 
 
 #Extending Bender
@@ -49,111 +33,105 @@ Also, if you set the http listener's log file to !BENDER_LOGGER the webrick log 
 
 ###Directory Structure
 ```
-./bender.rb     #main routine - attaches to shell and runs the bot
-./start.sh      #runs main bender.rb and detaches
-./stop.sh       #uses the pid file to kill off the bender
-./config.yml    #configuration file
-./lib/          #directory with all needed libraries (classes/modules)
-./processors/   #directory for irc command processors
-./servlets/     #directory for servlets
+./config/       # config and initialization
+./lib/          # directory with all support libraries (classes/modules)
+./processors/   # directory for irc command processors
+./servlets/     # directory for servlets
 ```
 
 ###Autoloader
-When Bender starts, it auto loads everything so that you just put your extensions in the proper folders with the proper naming convention and restart the application for it to start working. NO EXTRA CONFIG!
+When Bender starts, it auto loads everything so that you just put your extensions in the proper folders with the proper namespacing and restart the application for it to start working. NO EXTRA CONFIG!
 
 **Load Order**
- 1. Require all files in ./lib/*.rb
- 1. Require all files in ./servlets/*.rb
- 1. Require all files in ./processors/*.rb
- 1. Start processors - ./processors/*_processor.rb
- 1. Start servlets - ./servlets/*_servlet.rb
+
+  1. Require ./config/application.rb
+  1. Require all files in ./config/*.rb
+  1. Require all files in ./lib/*.rb
+  1. Require all files in ./servlets/*.rb
+  1. Require all files in ./processors/*.rb
+  1. Start processors - ./processors/*_processor.rb
+  1. Start servlets - ./servlets/*_servlet.rb
 
 **Autoload of Processors**
 
-This is done by loading all ./processors/*_processor.rb files and camel casing the file name to load the class. *ie - base_processor.rb is loaded as BaseProcessor.new*
+This is done via the `Bender::Processor` namespace. As long as your processor's class is namespaced there, it will be loaded.
+
+example:
+
+```ruby
+Bender::Processor::BasicProcessor #=> loaded
+Bender::Processor::AwesomeSauce   #=> loaded
+Bender::WizBangProcessor          #=> not loaded
+```
 
 **Autoload of Servlets**
 
-This is done by loading all ./servlets/*_servlet.rb files and camel casing the file name to the class. *ie - stats_servlet.rb is loaded as StatsServlet.new*
+This is done via the `Bender::HTTP` namespace. As long as your servlet's class is namespaced there, it will be loaded.
 
-Servlets also must have the mountpoint variable defined so that Bender knows what uri to mount your servlet class on...
-```
-@mountpoint = "/stats" # will load StatsServlet on /stats on your web server
+example:
+
+```ruby
+Bender::HTTP::PingServlet  #=> loaded
+Bender::HTTP::Github       #=> loaded
+Bender::MyServlet          #=> not loaded
 ```
 
 **More info about creating processors and servlets in the next section**
 
 
 ### Building an irc command processor
-This is a simple IOC (inversion of control) style system where you define a class that implements the "call" method that takes a hash as its argument.
+Just subclass `Bender::BaseProcessor` and implement the `#process` method
 
 **This is what a processor looks like:**
+
+```ruby
+module Bender::Processor
+  class BasicProcessor < Bender::BaseProcessor
+
+    # REQUIRED! You must implement the #process method when subclassing the BaseProcessor class
+    def process
+
+      #monitor for the word 'sweet' and respond with 'dude'
+      hear(/sweet/i) { reply 'Dude!' }
+
+      # monitor for my nickname with or without a question mark and respond
+      #   ie: `bender?` responds with 'Kiss my shiny metal ass'
+      hear(/^#{@bot.nickname}\??$/) { reply 'Kiss my shiny metal ass' }
+
+      # respond wraps the previous bot.nickname catching and matches on everything after the nickname
+      #   ie: `bender PING` will respond with 'PONG'
+      respond(/PING$/) { reply "PONG" }
+    end
+
+    # The #help class method is optional but it makes running `bender help` a lot more useful ;)
+    # This method should return an array of lines to be printed in the irc
+    def self.help
+      [
+        "sweet - replies with 'dude'",
+        "#{Bender.nickname} PING - replies with 'PONG'",
+        "#{Bender.nickname}? - replies with 'Kiss my shiny metal ass"
+      ]
+    end
+  end
+end
 ```
-module BenderProcessor
-  class MyProcessor
-    def call(hash)
-      # helper variables
-      command = hash[:command]
-      origin = hash[:origin]
-      msg = hash[:msg]
-      bot = hash[:bot]
-      room = hash[:room]
-
-      if origin.nil?
-        # if origin is nil.. just exit the processor now...
-        return
-      end
-
-      if origin.nickname == bot.nickname
-        # if the bot is origin.. just exit the processor now...
-        return
-      end
-
-      # Parse Messages
-      # http://rubular.com is really good for coming up with regex ;)
-      case msg
-         when /^#{bot.nickname},?$/i
-           # match 'nickname'
-           # says "Kiss my shiny metal ass"
-           bot.say room, "Kiss my shiny metal ass"
-
-          when /^#{bot.nickname},? version$/i
-            # match 'nickname, version'
-            # says version
-            bot.say room, BENDER_VERSION
-
-          when /^#{bot.nickname}.? say hello/i
-            # match 'nickname, say hello'
-            # says "Hello World"
-            bot.say room, "Hello World"
-
-          when /^#{bot.nickname},? say goodbye/i
-            # match 'nickname, say goodbye'
-            # says "Goodbye Cruel World" and kicks its self out of the room
-            bot.say room, "Goodbye Cruel World"
-            bot.say room, "/kick #{bot.nickname}"
-
-      end # end case messages
-    end # end MyProcessor#call
-  end # end MyProcessor
-end # end BenderProcessor
-```
-You simply put this code in ./processors/my_processor.rb and researt Bender for this to start working.
-
-*note - my_processor.rb matches the class name of MyProcessor*
-
-*also note - MyProcessor is in the BenderProcessor module... This is because Bender only loads processors within the BenderProcessor namespace - BenderProcessor::MyProcessor.new*
+You simply put this code in the `./processors/` directory and restart Bender for this to start working.
 
 
 ### Building a servlet
-Since Bender uses webrick, creating a servlet for Bender is almost the same as creating an Abstract Servlet in Webrick. **ALMOST**... The only difference is that Bender will provide the Spunk Bot object in the request so that you can access the Spunk IRC bot from within the request to post messages to IRC or display IRC data to a webpage. This is done by inheriting from the BenderServlet class which has the bot.
+Since Bender uses webrick, creating a servlet for Bender is almost the same as creating an Abstract Servlet in Webrick. **ALMOST**... The only difference is that Bender will provide the Spunk Bot object so that you can access the Spunk IRC bot from within the request to post messages to IRC or display IRC data to a webpage. This is done by inheriting from the `Bender::BaseServlet` class which has the bot.
 
 **This is what servlet looks like**
-```
-class GitServlet < BenderServlet
+
+```ruby
+class GitServlet < Bender::BaseServlet
   # Provides a simple bridge of github url post hook data to IRC
   # http://localhost:9091/gitirc?room=github
-  @mountpoint = "/gitirc" # required for Bender to know where to mount the servlet
+
+  # REQUIRED! so Bender knows where to mount this
+  def self.mountpoint
+    "/gitirc"
+  end
 
   def do_GET(request, response)
     status = 200
@@ -212,8 +190,29 @@ class GitServlet < BenderServlet
   end
 end
 ```
-This servlet will listen for a post from your github post hook on your repo and bridge the data in to the room provided. *ie - http://myserver.com:9019/gitirc?room=github will post to the #github room whenever you push to your repo*
 
-This code should be put in to ./servlets/git_servlet.rb to be loaded as GitServlet on uri /gitirc
+This servlet will listen for a post from your github post hook on your repo and bridge the data into the room provided. *ie - http://myserver.com:9019/gitirc?room=github will post to the #github room whenever you push to your repo*
 
-*note the file name git_servlet.rb corresponds to the class name GitServlet*
+This code should be put into the `./servlets/` directory to get included at startup.
+
+
+#Contributing
+
+  1. fork the repository
+  1. create a feature branch
+  1. add your awesome code
+  1. send a pull request
+  1. have a beer
+
+
+#License
+
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 Michael Heijmans
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

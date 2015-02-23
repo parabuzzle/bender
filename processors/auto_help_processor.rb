@@ -1,3 +1,15 @@
+# Description:
+#   Dynamically generates and prints help
+#
+# Dependencies:
+#   none
+#
+# Configuration:
+#   none
+#
+# Authors:
+#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
+
 module Bender::Processor
   class AutoHelpProcessor < Bender::BaseProcessor
     def process

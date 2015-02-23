@@ -2,6 +2,12 @@ require 'webrick'
 require 'mono_logger'
 
 module Bender
+
+  # Handles WEBrick and auto-mounting servlets
+  #
+  # Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+  # Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+  # License::   MIT
   module HttpListener
 
     def self.start(bot)
@@ -26,8 +32,9 @@ module Bender
         Bender.log.info "Starting servlets"
         Bender::HTTP.constants.each do |i|
           klass = "Bender::HTTP::#{i.to_s}".classify
-          server.mount klass.class_eval{@mountpoint}, klass
-          Bender.log.info "  Starting servlet: #{i.to_s} mounted at #{klass.class_eval{@mountpoint}}"
+          mountpoint = klass.mountpoint
+          server.mount mountpoint, klass
+          Bender.log.info "  Starting servlet: #{i.to_s} mounted at #{mountpoint}"
         end
         server.start
 

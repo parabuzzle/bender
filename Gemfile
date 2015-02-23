@@ -13,6 +13,7 @@ group :development do
   gem 'rspec'
   gem 'guard'
   gem 'guard-rspec', require: false
+  gem 'yard'
 end
 
 group :standalone do

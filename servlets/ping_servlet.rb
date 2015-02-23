@@ -1,6 +1,17 @@
+# Description:
+#   A simple ping endpoint
+#
+# Dependencies:
+#   none
+#
+# Configuration:
+#   none
+#
+# Authors:
+#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
+
 module Bender::HTTP
   class PingServlet < Bender::BaseServlet
-    @mountpoint = "/ping"
 
     def do_GET(request, response)
       status = 200
@@ -13,5 +24,8 @@ module Bender::HTTP
       response.body = body
     end
 
+    def self.mountpoint
+      "/ping"
+    end
   end
 end

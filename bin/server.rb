@@ -47,7 +47,6 @@ Bender.log.debug "Starting the irc listener thread"
   end
 }
 
-#binding.pry
 unless Bender.config.disable_http
   Bender.log.debug "Starting the http listener thread"
   @threads[:http_server] = Thread.new { Bender::HttpListener.start(Bender.bot) }

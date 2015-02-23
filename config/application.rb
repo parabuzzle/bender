@@ -2,6 +2,8 @@
 require 'bundler/setup'
 require 'spunk'
 
+require 'pry' unless ENV['BENDER_ENV'] == 'production'
+
 # Setup load paths
 dirs = %w( ./config ./lib ./servlets ./processors )
 dirs.each { |i| $LOAD_PATH.unshift i }

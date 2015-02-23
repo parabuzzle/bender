@@ -1,5 +1,4 @@
 require 'config'
-require 'pry'
 
 module Bender
 

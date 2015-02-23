@@ -11,7 +11,7 @@ module Bender
         logger = Bender.log
       else
         logger = MonoLogger.new(Bender.config.http_log_file, Bender.config.http_log_rotation)
-        logger.level = Bender.config.HTTP_LOG_LEVEL
+        logger.level = Bender.config.http_log_level
       end
 
       begin

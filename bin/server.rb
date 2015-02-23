@@ -23,8 +23,8 @@ begin
   Bender.bot = Spunk::Bot.new(opts)
   Bender.bot.connect
   Bender.bot.authenticate
+  sleep 5 # block the start for a few seconds to prevent a strange race condition in the listeners later
   connect_to_default_rooms
-  sleep 2 # block the start for a few seconds to prevent a strange race condition in the listeners later
 rescue SpunkException::BotException
   Bender.log.fatal "Couldn't establish a connection to #{opts[:hostname]}:#{opts[:port]}"
   puts "Couldn't establish a connection to #{opts[:hostname]}:#{opts[:port]}"

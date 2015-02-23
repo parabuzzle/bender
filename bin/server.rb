@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 
-# Bender
-# -- The IRC Bot container
+# The Bender Server
+#   -- Runs the IRC bot
+#
+# Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+# Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+# License::   MIT
 
 # Set process name
 $0 = "bender"

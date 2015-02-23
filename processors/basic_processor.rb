@@ -1,3 +1,15 @@
+# Description:
+#   All the basic stuff Bender should do
+#
+# Dependencies:
+#   none
+#
+# Configuration:
+#   none
+#
+# Authors:
+#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
+
 module Bender::Processor
   class BasicProcessor < Bender::BaseProcessor
     def process

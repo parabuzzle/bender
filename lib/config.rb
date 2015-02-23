@@ -3,6 +3,13 @@ require 'thread'
 require 'mono_logger'
 
 module Bender
+
+  # The Bender config engine
+  #   -- Provides a way of working with configuration
+  #
+  # Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+  # Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+  # License::   MIT
   class Config
     include Singleton
     attr_reader :config_hash
@@ -66,7 +73,7 @@ module Bender
         self.http_port           = ENV['PORT']              || 9091
         self.http_max_clients    = ENV['HTTP_MAX_CLIENTS']  || 4
         self.http_listen_address = ENV['HTTP_MAX_CLIENTS']  || '0.0.0.0'
-        self.http_shared_secret  = ENV['HTTP_SHARED_SECRET']|| 'youshouldchangethis'
+        self.http_auth_token     = ENV['HTTP_AUTH_TOKEN']   || nil
 
         self.pid_file            = ENV['PID_FILE']          || './bender.pid'
 

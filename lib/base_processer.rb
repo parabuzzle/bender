@@ -1,6 +1,13 @@
 require 'thread'
 
 module Bender
+
+  # The base class for all Processors
+  #   -- Provides helpers for working with SpunkBot
+  #
+  # Author::    Michael Heijmans  (mailto:parabuzzle@gmail.com)
+  # Copyright:: Copyright (c) 2013-2015 Michael Heijmans
+  # License::   MIT
   class BaseProcessor
     attr_reader :command, :msg, :bot, :room, :origin
 
@@ -8,6 +15,7 @@ module Bender
       @mutex   = Mutex.new
     end
 
+    # Method is called by SpunkBot on each line recieved from a joined room
     def call(opts)
       @mutex.synchronize {
         @command  = opts[:command]
@@ -20,7 +28,8 @@ module Bender
     end
 
     def process
-      raise NotImplementedError, 'you must implement #process method'
+      obj = self
+      raise NotImplementedError, "you must implement #process method for #{obj.class}"
     end
 
     def hear(regexp, &block)

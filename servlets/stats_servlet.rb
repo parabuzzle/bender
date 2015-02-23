@@ -1,6 +1,17 @@
+# Description:
+#   Provides information about the bot
+#
+# Dependencies:
+#   none
+#
+# Configuration:
+#   Bender.config.http_auth_token
+#
+# Authors:
+#   Michael Heijmans  (mailto:parabuzzle@gmail.com)
+
 module Bender::HTTP
   class StatsServlet < Bender::BaseServlet
-    @mountpoint = "/stats"
 
     def do_GET(request, response)
       status = 200
@@ -17,10 +28,8 @@ module Bender::HTTP
 
       body += "\n"
 
-      @logger.info @http_shared_secret
-
-      if @http_shared_secret
-        unless params(request)['token'] == @http_shared_secret
+      if @auth_token
+        unless params(request)['token'] == @auth_token
           status = 403
           body = "You are not authorized to view this resource\n"
         end
@@ -32,5 +41,8 @@ module Bender::HTTP
       response.body = body
     end
 
+    def self.mountpoint
+      "/stats"
+    end
   end
 end

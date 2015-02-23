@@ -16,7 +16,11 @@ end
 Bender::Config.configure do |config|
   # override config parameters here
 
-  # IRC Bot Logging Parameters
+  # Shared Token for Admin-y pages
+  config.http_shared_secret    = 'youshouldchangethis'
+
+
+  ## IRC Bot Logging Parameters
 
   # IRC bot logfile
   #config.irc_log_file        = STDOUT
@@ -28,10 +32,10 @@ Bender::Config.configure do |config|
   #config.irc_log_level       = :INFO
 
 
-  # IRC Login Parameters
+  ## IRC Login Parameters
 
   # Bot's nickname
-  #config.nickname            = 'bender_test'
+  #config.nickname            = 'bender'
 
   # Bot's username (used by some irc servers)
   #config.username            = 'bender'
@@ -52,7 +56,7 @@ Bender::Config.configure do |config|
   #config.nickserv_password   = nil
 
   # A list of rooms to connect to on startup
-  #config.irc_rooms           = ['#bender-test']
+  #config.irc_rooms           = ['#my-awesome-room']
 
   # Allow bender to accept invite requests
   #config.irc_accept_invites  = true
@@ -60,7 +64,8 @@ Bender::Config.configure do |config|
   # Use SSL for IRC traffic
   #config.irc_use_ssl         = false
 
-  # HTTP Server Parameters
+
+  ## HTTP Server Parameters
 
   # Don't boot  the HTTP server
   #config.disable_http        = false

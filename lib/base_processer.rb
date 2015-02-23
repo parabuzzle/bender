@@ -10,11 +10,11 @@ module Bender
 
     def call(opts)
       @mutex.synchronize {
-        @command = opts[:command]
-        @origin  = opts[:origin]
-        @msg     = opts[:msg]
-        @bot     = opts[:bot]
-        @room    = opts[:room]
+        @command  = opts[:command]
+        @origin   = opts[:origin]
+        @msg      = opts[:msg]
+        @bot      = opts[:bot]
+        @room     = opts[:room]
       }
       process
     end

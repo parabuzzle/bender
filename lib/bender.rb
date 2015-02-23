@@ -7,6 +7,10 @@ module Bender
     Bender::Config.instance.log
   end
 
+  def self.nickname
+    Bender::Config.instance.nickname
+  end
+
   def self.config
     Bender::Config.instance
   end

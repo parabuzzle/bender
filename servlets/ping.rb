@@ -11,7 +11,7 @@ module Bender::HTTP
   #
   # Authors::
   #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-  class PingServlet < Bender::BaseServlet
+  class Ping < Bender::BaseServlet
 
     def do_GET(request, response)
       status = 200

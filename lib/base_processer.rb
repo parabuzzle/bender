@@ -85,7 +85,7 @@ module Bender
       # @see #respond
       def directly_addressed?
         return false unless @msg
-        return true if @msg.match(/^#{bot.nickname}/i)
+        return true if @msg.match(/^\@?#{bot.nickname}/i)
         return false
       end
 

@@ -11,7 +11,7 @@ module Bender::Processor
   #
   # Authors::
   #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-  class AutoHelpProcessor < Bender::BaseProcessor
+  class AutoHelp < Bender::BaseProcessor
     def process
       respond(/help$/i) do
         help_messages.each { |msg| reply msg }

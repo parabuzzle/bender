@@ -11,7 +11,7 @@ module Bender::Processor
   #
   # Authors::
   #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-  class SweetDudeProcessor < Bender::BaseProcessor
+  class SweetDude < Bender::BaseProcessor
     def process
       hear(/sweet/i) { reply 'Dude!' }
       hear(/dude/i)  { reply 'Sweet!' }

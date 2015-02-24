@@ -11,7 +11,7 @@ module Bender::HTTP
   #
   # Authors::
   #   Michael Heijmans  (mailto:parabuzzle@gmail.com)
-  class StatsServlet < Bender::BaseServlet
+  class Stats < Bender::BaseServlet
 
     def do_GET(request, response)
       status = 200

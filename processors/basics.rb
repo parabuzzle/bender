@@ -16,10 +16,6 @@ module Bender::Processor
       respond(/version\??$/i)       { reply "#{Bender::VERSION}" }
       respond(/PING$/)              { reply "PONG" }
       hear(/^#{@bot.nickname}\??$/) { reply 'Kiss my shiny metal ass' }
-      hear(/good morning/i)         { reply "good morning #{@origin.nickname}" }
-      hear(/goodnight/i)            { reply "goodnight #{@origin.nickname}" }
-      hear(/mornin/)                { reply "good morning #{@origin.nickname}" }
-      hear(/night/)                 { reply "goodnight #{@origin.nickname}" }
     end
 
     def self.help

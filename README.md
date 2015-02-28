@@ -29,7 +29,9 @@ Look at `config/application.rb` for a list of configuration options and override
 
 
 #Extending Bender
-*Let's face it... this is what you are interested in ;)*
+*Let's face it... this is what you're interested in ;)*
+
+The full (up-to-date) api docs can be found here: http://www.rubydoc.info/github/parabuzzle/bender
 
 ###Directory Structure
 ```

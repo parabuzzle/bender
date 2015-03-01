@@ -9,6 +9,22 @@ module Bender
   # License::   MIT
   module Spunk
 
+    # Sets up and connects the IRC bot
+    def self.connect!
+      begin
+        Bender.bot = ::Spunk::Bot.new(Bender::Spunk.options_from_config)
+        Bender.bot.connect
+        Bender.bot.authenticate
+        sleep 5
+        Bender::Spunk.connect_to_default_rooms
+        return Bender.bot
+      rescue SpunkException::BotException
+        Bender.log.fatal "Couldn't establish a connection to #{opts[:hostname]}:#{opts[:port]}"
+        puts "Couldn't establish a connection to #{opts[:hostname]}:#{opts[:port]}"
+        exit 1
+      end
+    end
+
     # Generates the options hash from Bender::Config to pass to Spunk::Bot
     def self.options_from_config
       c = Bender::Config.instance

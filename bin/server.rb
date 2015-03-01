@@ -19,18 +19,7 @@ Bender.log.info "## Starting bender ##"
 Bender::Process.write_pid
 
 # initialize the irc bot
-begin
-  opts = Bender::Spunk.options_from_config
-  Bender.bot = Spunk::Bot.new(opts)
-  Bender.bot.connect
-  Bender.bot.authenticate
-  sleep 5 # block the start for a few seconds to prevent a strange race condition in the listeners later
-  Bender::Spunk.connect_to_default_rooms
-rescue SpunkException::BotException
-  Bender.log.fatal "Couldn't establish a connection to #{opts[:hostname]}:#{opts[:port]}"
-  puts "Couldn't establish a connection to #{opts[:hostname]}:#{opts[:port]}"
-  exit 1
-end
+Bender::Spunk.connect!
 
 # setup thread handling
 @stop = false

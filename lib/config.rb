@@ -62,6 +62,7 @@ module Bender
         self.irc_log_file        = ENV['IRC_LOG_FILE']      || STDOUT
         self.irc_log_rotation    = ENV['IRC_LOG_ROTATION']  || 'weekly'
         self.irc_log_level       = ENV['IRC_LOG_LEVEL']     || :INFO
+        self.irc_adapter         = ENV['IRC_ADAPTER']       || 'spunk'
 
         # IRC Login
         self.username            = ENV['IRC_USERNAME']      || 'bender'
